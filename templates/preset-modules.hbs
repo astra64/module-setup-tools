@@ -1,0 +1,137 @@
+<form class="mst-preset-modules-form" autocomplete="off" data-preset-selection-signature="{{presetSelectionSignature}}">
+  <div class="mst-flow-row" aria-label="Workflow overview">
+    <div class="mst-flow-step">
+      <strong>Edit modules</strong>
+      <span>Check or uncheck modules below.</span>
+    </div>
+    <div class="mst-flow-step">
+      <strong>Save when ready</strong>
+      <span>Click Save to Preset to store the editing preset.</span>
+    </div>
+    <div class="mst-flow-step">
+      <strong>Apply to world</strong>
+      <span>World modules do not change until you click Apply Preset.</span>
+    </div>
+  </div>
+
+  <div class="mst-active-preset-row" aria-label="Editing preset">
+    <label class="mst-active-preset-label" for="mst-preset-selector">Editing Preset</label>
+    <div class="mst-active-preset-controls">
+      <select id="mst-preset-selector" class="mst-preset-selector" data-preset-selector>
+        {{#each presets as |preset|}}
+          <option value="{{preset.id}}" {{#if preset.isActive}}selected{{/if}}>
+            {{preset.name}} ({{preset.moduleCount}})
+          </option>
+        {{/each}}
+      </select>
+      <button type="button" class="mst-preset-manage-btn" data-preset-manage title="Manage presets: create, rename, duplicate, delete">
+        <i class="fas fa-cog"></i>
+        <span>Manage Presets</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mst-summary-row" aria-label="Preset summary">
+    <span class="mst-summary-chip" title="Total installed modules.">Installed: {{installedCount}}</span>
+    <span class="mst-summary-chip" title="Currently selected in this editing session.">Selected: {{selectedCount}}</span>
+    <span class="mst-summary-chip" title="Currently saved in the editing preset (may include uninstalled).">Saved: {{configuredCount}}</span>
+    <span class="mst-summary-chip {{#if isEditingPresetApplied}}mst-summary-chip-good{{else}}mst-summary-chip-warn{{/if}}" title="Last preset applied to this world with this tool.">Applied: {{appliedPresetName}}</span>
+    <span class="mst-summary-chip mst-save-state-chip" data-preset-save-state title="Matches = selection matches the editing preset.">Status: matches preset</span>
+    <button type="button" class="mst-summary-revert-btn" data-revert-preset title="Reset checkboxes to the editing preset snapshot.">
+      <i class="fas fa-undo"></i>
+      Revert
+    </button>
+  </div>
+
+  {{#if hasInstalledModules}}
+    <div class="form-group mst-scroll-panel mst-scroll-panel-modules">
+      <div class="mst-panel-header">
+        <div class="mst-panel-header-left">
+          <span class="mst-panel-title">Installed Modules</span>
+          <label class="mst-panel-search" for="mst-module-search">
+            <input id="mst-module-search" type="text" data-module-search aria-label="Search installed modules" placeholder="Search by title or ID..." />
+          </label>
+        </div>
+        <span class="mst-panel-header-actions">
+          <button type="button" class="mst-filter-toggle" data-module-select-active title="Check all active modules">Select Active</button>
+          <button type="button" class="mst-filter-toggle" data-module-clear-selection title="Uncheck all">Clear</button>
+          <button type="button" class="mst-filter-toggle" data-module-filter-active aria-pressed="false" title="Show active only">Active Only</button>
+          <strong data-module-visible-count>{{installedCount}}</strong>
+        </span>
+      </div>
+      {{#each installedModules as |entry|}}
+        <label class="mst-list-row" data-module-row data-search="{{entry.searchText}}" data-active="{{#if entry.active}}true{{else}}false{{/if}}">
+          <span class="mst-row-main">
+            <input type="checkbox" name="presetModulesSelected" value="{{entry.id}}" {{#if entry.selected}}checked{{/if}} />
+            <strong class="mst-row-title">{{entry.title}}</strong>
+            <span class="mst-row-meta">{{entry.id}}</span>
+          </span>
+          <span>
+            {{#if entry.missingInstalledDependencyCount}}
+              <strong class="mst-status-badge mst-status-warning mst-dep-indicator" title="Requires installed but inactive dependencies: {{entry.missingInstalledDependencyLabel}}">deps {{entry.missingInstalledDependencyCount}}</strong>
+            {{/if}}
+            {{#if entry.missingUninstalledDependencyCount}}
+              <strong class="mst-status-badge mst-status-missing mst-dep-indicator" title="Requires dependencies that are not installed: {{entry.missingUninstalledDependencyLabel}}">missing {{entry.missingUninstalledDependencyCount}}</strong>
+            {{/if}}
+            {{#if entry.active}}
+              <strong class="mst-status-badge mst-status-active">active</strong>
+            {{/if}}
+          </span>
+        </label>
+      {{/each}}
+    </div>
+  {{else}}
+    <p>No installed modules were found.</p>
+  {{/if}}
+
+  {{#if hasConfigured}}
+    <details class="mst-configured-collapsible">
+      <summary class="mst-configured-summary">
+        <span>Preset Contents</span>
+        <strong>{{configuredCount}} total</strong>
+      </summary>
+      <p class="notes mst-saved-preset-notes">Shows what is stored in the editing preset. May include uninstalled modules.</p>
+      <div class="mst-scroll-panel mst-scroll-panel-configured">
+        {{#each configured as |entry|}}
+          <div class="mst-list-row" data-removed {{#unless entry.installed}}title="'{{entry.id}}' is saved in your editing preset but is not installed in this Foundry instance. To fix this: install the module via the Add-on Modules tab."{{/unless}}>
+            <span class="mst-configured-entry-main">
+              {{#if entry.title}}
+                <strong class="mst-row-title">{{entry.title}}</strong>
+              {{/if}}
+              <code class="mst-row-meta">{{entry.id}}</code>
+            </span>
+            <span class="mst-configured-entry-state">
+              {{#if entry.installed}}
+                {{#if entry.active}}
+                  <strong class="mst-status-badge mst-status-active">installed + active</strong>
+                {{else}}
+                  <strong class="mst-status-badge">installed</strong>
+                {{/if}}
+              {{else}}
+                <button type="button" class="mst-remove-configured" data-remove-configured="{{entry.id}}" title="Remove from preset">
+                  <i class="fas fa-times"></i>
+                </button>
+                <strong class="mst-status-badge mst-status-missing">missing</strong>
+              {{/if}}
+            </span>
+          </div>
+        {{/each}}
+      </div>
+    </details>
+  {{else}}
+    <p>No preset module IDs configured.</p>
+  {{/if}}
+
+  <p class="mst-selection-delta" data-selection-delta title="Changes since last save.">No changes</p>
+
+  <footer class="sheet-footer flexrow mst-footer-row">
+    <button type="submit" title="Review changes and save to the editing preset.">
+      <i class="fas fa-save"></i>
+      Save Preset
+    </button>
+    <button type="button" data-apply-preset title="Review and apply the editing preset to the world.">
+      <i class="fas fa-check"></i>
+      Apply Preset to World
+    </button>
+  </footer>
+</form>

@@ -1,0 +1,6 @@
+# Node / test tooling
+node_modules/
+coverage/
+
+# Local release build
+module.zip

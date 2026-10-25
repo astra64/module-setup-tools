@@ -10,8 +10,8 @@
   ],
   "license": "LICENSE",
   "url": "https://github.com/astra64/module-setup-tools",
-  "manifest": "https://github.com/astra64/module-setup-tools/releases/latest/download/module.json",
-  "download": "https://github.com/astra64/module-setup-tools/releases/latest/download/module.zip",
+  "manifest": "https://raw.githubusercontent.com/astra64/module-setup-tools/main/module.json",
+  "download": "https://github.com/astra64/module-setup-tools/archive/refs/heads/main.zip",
   "compatibility": {
     "minimum": "14",
     "verified": "14"

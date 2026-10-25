@@ -20,7 +20,7 @@ Claude Code was used during this module's development, alongside human coding, d
 Install via the Foundry package browser, or manually with this manifest URL:
 
 ```
-https://github.com/astra64/module-setup-tools/releases/latest/download/module.json
+https://raw.githubusercontent.com/astra64/module-setup-tools/main/module.json
 ```
 
 Requires Foundry VTT v14. No dependency on any game system or other module.
